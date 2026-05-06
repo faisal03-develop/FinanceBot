@@ -34,4 +34,19 @@ async function logFailedAttempt(originalInput, reason) {
   }
 }
 
-module.exports = { saveTransaction, logFailedAttempt };
+async function getRecentTransactions(limit = 10) {
+  try {
+    const snapshot = await db.collection('transactions')
+      .orderBy('timestamp', 'desc')
+      .limit(limit)
+      .get();
+    
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    throw new Error('Database read failed');
+  }
+}
+
+module.exports = { saveTransaction, logFailedAttempt, getRecentTransactions };
+
