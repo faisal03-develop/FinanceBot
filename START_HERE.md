@@ -24,8 +24,8 @@ Run this in the root directory:
 npm run dev
 ```
 This will start:
-- **Backend** on [http://localhost:3000](http://localhost:3000)
-- **Frontend** on [http://localhost:3001](http://localhost:3001)
+- **Backend** on [http://localhost:5000](http://localhost:5000)
+- **Frontend** on [http://localhost:3000](http://localhost:3000)
 
 ## Using the Interface
 1. Open [http://localhost:3001](http://localhost:3001).
