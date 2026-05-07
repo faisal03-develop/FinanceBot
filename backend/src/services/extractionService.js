@@ -1,4 +1,5 @@
-const model = require('../config/gemini');
+const geminiModel = require('../config/gemini');
+const groq = require('../config/groq');
 
 const EXTRACTION_PROMPT = `
 You are a financial data extraction assistant. Your task is to extract structured financial information from informal natural language input in Urdu (script or Roman), Hinglish, or English.
@@ -27,16 +28,33 @@ You are a financial data extraction assistant. Your task is to extract structure
 Input: {input}
 `;
 
-async function extractTransactionData(userInput) {
+async function extractTransactionData(userInput, botType = 'gemini') {
   try {
     const prompt = EXTRACTION_PROMPT.replace('{input}', userInput);
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    let text;
+
+    if (botType === 'groq') {
+      const completion = await groq.chat.completions.create({
+        messages: [
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        model: 'llama-3.3-70b-versatile',
+        response_format: { type: 'json_object' },
+      });
+      text = completion.choices[0].message.content;
+    } else {
+      // Default to Gemini
+      const result = await geminiModel.generateContent(prompt);
+      const response = await result.response;
+      text = response.text();
+    }
     
     return JSON.parse(text);
   } catch (error) {
-    console.error('Error in Gemini extraction:', error);
+    console.error(`Error in ${botType} extraction:`, error);
     throw new Error('Failed to parse transaction data');
   }
 }
