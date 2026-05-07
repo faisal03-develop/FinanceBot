@@ -3,7 +3,7 @@ const { saveTransaction, logFailedAttempt } = require('../services/transactionSe
 const { validateExtractedData } = require('../utils/validator');
 
 async function processTransaction(req, res) {
-  const { text } = req.body;
+  const { text, botType } = req.body;
 
   if (!text || text.trim().length === 0) {
     return res.status(400).json({ error: 'Input text is required' });
@@ -14,8 +14,8 @@ async function processTransaction(req, res) {
   }
 
   try {
-    // 1. Extract data using Gemini
-    const extracted = await extractTransactionData(text);
+    // 1. Extract data using AI
+    const extracted = await extractTransactionData(text, botType);
 
     // 2. Validate extracted data
     const validation = validateExtractedData(extracted);
