@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Plus, RefreshCw, AlertCircle, CheckCircle2, History, PieChart, TrendingDown, TrendingUp } from 'lucide-react';
+import { Send, Plus, RefreshCw, AlertCircle, CheckCircle2, History, PieChart, TrendingDown, TrendingUp, Bot, Cpu } from 'lucide-react';
 import { TransactionCard } from '@/components/TransactionCard';
 
 const API_BASE_URL = 'http://localhost:5000/api/transactions';
@@ -12,6 +12,7 @@ export default function Home() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [transactions, setTransactions] = useState([]);
+  const [selectedBot, setSelectedBot] = useState<'gemini' | 'groq'>('gemini');
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
   const fetchTransactions = async () => {
@@ -35,7 +36,10 @@ export default function Home() {
     setMessage(null);
 
     try {
-      const response = await axios.post(`${API_BASE_URL}/parse`, { text: input });
+      const response = await axios.post(`${API_BASE_URL}/parse`, { 
+        text: input,
+        botType: selectedBot 
+      });
       setMessage({ type: 'success', text: response.data.message });
       setInput('');
       fetchTransactions();
@@ -61,12 +65,40 @@ export default function Home() {
           <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">Finance <span className="text-blue-500">Bot</span></h1>
           <p className="text-white/40">AI-powered personal finance tracker</p>
         </div>
-        <button 
-          onClick={fetchTransactions}
-          className="p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5"
-        >
-          <RefreshCw className={loading ? "animate-spin" : ""} size={20} />
-        </button>
+        
+        <div className="flex items-center gap-3">
+          <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
+            <button
+              onClick={() => setSelectedBot('gemini')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                selectedBot === 'gemini' 
+                  ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' 
+                  : 'text-white/40 hover:text-white/60'
+              }`}
+            >
+              <Bot size={16} />
+              <span className="text-sm font-medium">Gemini</span>
+            </button>
+            <button
+              onClick={() => setSelectedBot('groq')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
+                selectedBot === 'groq' 
+                  ? 'bg-orange-600 text-white shadow-lg shadow-orange-600/20' 
+                  : 'text-white/40 hover:text-white/60'
+              }`}
+            >
+              <Cpu size={16} />
+              <span className="text-sm font-medium">Groq</span>
+            </button>
+          </div>
+          
+          <button 
+            onClick={fetchTransactions}
+            className="p-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors border border-white/5"
+          >
+            <RefreshCw className={loading ? "animate-spin" : ""} size={20} />
+          </button>
+        </div>
       </header>
 
       {/* Stats Grid */}
